@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.eastng.framework.common.vo.CommonResponseBody;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,6 +16,7 @@ import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
+import org.activiti.rest.service.api.engine.CommentResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -93,7 +95,9 @@ public class ModelController {
      * 根据Model部署流程
      */
     @RequestMapping(value = "deploy/{modelId}")
-    public String deploy(@PathVariable("modelId") String modelId, RedirectAttributes redirectAttributes) {
+    public CommonResponseBody<Deployment> deploy(@PathVariable("modelId") String modelId, RedirectAttributes redirectAttributes) {
+        
+        CommonResponseBody<Deployment> responseBody = new CommonResponseBody<Deployment>();
         try {
             Model modelData = repositoryService.getModel(modelId);
             ObjectNode modelNode = (ObjectNode) new ObjectMapper().readTree(repositoryService.getModelEditorSource(modelData.getId()));
@@ -104,11 +108,13 @@ public class ModelController {
 
             String processName = modelData.getName() + ".bpmn20.xml";
             Deployment deployment = repositoryService.createDeployment().name(modelData.getName()).addString(processName, new String(bpmnBytes)).deploy();
+            responseBody.setData(deployment);
+            
             redirectAttributes.addFlashAttribute("message", "部署成功，部署ID=" + deployment.getId());
         } catch (Exception e) {
             logger.error("根据模型部署流程失败：modelId={}", modelId, e);
         }
-        return "redirect:workflow/model";
+        return responseBody;
     }
 
     /**

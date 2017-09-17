@@ -19,7 +19,8 @@
     <context:component-scan base-package="org.activiti.rest.service" use-default-filters="false">
         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
     </context:component-scan>
-     <mvc:annotation-driven/>
+     <mvc:annotation-driven>
+        <mvc:path-matching suffix-pattern="false" />
+     </mvc:annotation-driven>
     
-	
 </beans>

@@ -68,10 +68,16 @@
                                 title : '部署rul'
                             }, {
                                 field : 'resource',
-                                title : '流程文件'
+                                title : '流程文件',
+                                formatter : function(value,row,index){
+                                    return '<a href="'+value+'"><i class="glyphicon glyphicon-eye-open"/></a>';
+                                 }
                             }, {
                                 field : 'diagramResource',
-                                title : '流程图片'
+                                title : '流程图片',
+                                formatter : function(value,row,index){
+                                    return '<a href="'+value+'" download=""><i class="glyphicon glyphicon-picture"/></a>';
+                                 }
                             }, {
                                 title : '操作',
                                 formatter : operationFormatter

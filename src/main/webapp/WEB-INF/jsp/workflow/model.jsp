@@ -112,7 +112,7 @@
         //部署
         $("#modelTable").off("click","#deploy"+row.id);
         $("#modelTable").on("click","#deploy"+row.id,row,function(event){
-            deploy(row);
+            deploy(row.id);
         });
         
       //添加删除事件
@@ -125,12 +125,19 @@
     
     function deploy(modelId){
     	
-    	$('<div class="alert alert-success" style="height: auto;width: 30%;margin: auto;" >'
-    	        +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
-    	          +'<span aria-hidden="true">&times;</span>'
-    	        +'</button>'
-    	        +'<strong>警告！</strong>您的网络连接有问题。'
-    	    +'</div>').alert();
+    	$.ajax({
+            url: '<%=path%>/workflow/model/deploy/'+modelId,
+            type: 'post',
+            dataType: 'json',
+            success: function (data) {
+            	$('<div class="alert alert-success" style="height: auto;width: 30%;margin: auto;" >'
+                        +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
+                          +'<span aria-hidden="true">&times;</span>'
+                        +'</button>'
+                        +'<strong>警告！</strong>您的网络连接有问题。'
+                    +'</div>').alert();
+            }
+     })
     	
     }
 </script>
