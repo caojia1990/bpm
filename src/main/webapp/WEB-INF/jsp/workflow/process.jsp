@@ -63,10 +63,10 @@
                             }, {
                                 field : 'deploymentId',
                                 title : '部署ID'
-                            }, {
+                            }/* , {
                                 field : 'deploymentUrl',
                                 title : '部署rul'
-                            }, {
+                            } */, {
                                 field : 'resource',
                                 title : '流程文件',
                                 formatter : function(value,row,index){
