@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Welcome</title>
+<title>流程列表</title>
 <%
     String path = request.getContextPath();
 %>
@@ -33,58 +33,61 @@
 <script src="<%=path%>/resources/bootstrap-datepicker/locales/bootstrap-datepicker.zh-CN.min.js"></script>
 
 <script type="text/javascript">
-    $(function() {
+                    $(function() {
 
-        $('#modelTable').bootstrapTable({
-            columns : [ {
-                field : 'name',
-                title : '模型名称'
-            }, {
-                field : 'key',
-                title : '模型键'
-            }, {
-                field : 'category',
-                title : '分类'
-            }, {
-                field : 'version',
-                title : '版本号'
-            }, {
-                field : 'metaInfo',
-                title : '元信息'
-            }, {
-                field : 'deploymentId',
-                title : '部署ID'
-            }, {
-                field : 'id',
-                title : 'ID'
-            }, {
-                field : 'url',
-                title : '模型url',
-                formatter : function(value,row,index){
-                       return '<a href="'+value+'"><i class="glyphicon glyphicon-eye-open"/></a>';
-                    }
-            }, {
-                field : 'deploymentUrl',
-                title : '部署url'
-            }, {
-                field : 'tenantId',
-                title : 'tenantId'
-            }, {
-                title : '操作',
-                formatter : operationFormatter
-            } ],
-            url : '<%=path%>/rest/repository/models',
-            detailView : true,
-            detailFormatter : function(index, row, element) {
-		                return '<img src="'+row.sourceExtraUrl+'"/>';
-		            },
+                        $('#processInstanceTable').bootstrapTable({
+                            
+                            columns : [ {
+                                field : 'id',
+                                title : 'ID'
+                            }, {
+                                field : 'key',
+                                title : 'KEY'
+                            }, {
+                                field : 'name',
+                                title : '流程定义名称'
+                            }, {
+                                field : 'category',
+                                title : '分类'
+                            }, {
+                                field : 'version',
+                                title : '版本号'
+                            }, {
+                                field : 'description',
+                                title : '描述'
+                            },{
+                                field : 'deploymentId',
+                                title : '部署ID'
+                            }, {
+                                field : 'resource',
+                                title : '流程文件',
+                                formatter : function(value,row,index){
+                                    return '<a href="'+value+'"><i class="glyphicon glyphicon-eye-open"/></a>';
+                                 }
+                            }, {
+                                field : 'diagramResource',
+                                title : '流程图',
+                                formatter : function(value,row,index){
+                                       return '<a href="'+value+'"><i class="glyphicon glyphicon-picture"/></a>';
+                                    }
+                            }, {
+                                field : 'deploymentUrl',
+                                title : '部署url'
+                            }, {
+                                field : 'startFormDefined',
+                                title : '自定义表单'
+                            }, {
+                                title : '操作',
+                                formatter : operationFormatter
+                            } ],
+                            url : '<%=path%>/rest/runtime/process-instances',
             dataField : 'data',
             queryParams : function(params) {
                 return {
                     start : params.offset,
                     size : params.limit
-                    };
-                },
+                };
+            },
             queryParamsType : 'limit',
             pagination : 'true',
             sidePagination : 'server',
@@ -98,21 +101,21 @@
     }
     
     function operationFormatter(value,row,index) {
-        var html = '<a href="<%=path%>/modeler.html?modelId='+row.id+'"><button type="button" id="cog'+row.id+'" class="btn btn-default btn-sm" title="设置">'
+        var html = '<a href="<%=path%>/modeler.html?modelId='+row.id+'"><button type="button" id="cog'+row.investorNo+'" class="btn btn-default btn-sm" title="设置">'
                       + '<i class="glyphicon glyphicon-cog"></i>'
                  + '</button></a> &nbsp;'
                  
-                 +'<button type="button" id="deploy'+row.id+'" class="btn btn-default btn-sm" title="部署">'
+                 +'<button type="button" id="cog'+row.investorNo+'" class="btn btn-default btn-sm" title="部署">'
                      + '<i class="glyphicon glyphicon-cloud-upload"></i>'
                  + '</button> &nbsp;'
                  
-                 + '<button type="button" id="trash'+row.id+'" class="btn btn-default btn-sm" title="删除">'
+                 + '<button type="button" id="trash'+row.investorNo+'" class="btn btn-default btn-sm" title="删除">'
                      + '<i class="glyphicon glyphicon-trash"></i>'
                  + '</button>';
-        //部署
-        $("#modelTable").off("click","#deploy"+row.id);
-        $("#modelTable").on("click","#deploy"+row.id,row,function(event){
-            deploy(row.id);
+                 
+        $("#investorTable").off("click","#cog"+row.investorNo);
+        $("#investorTable").on("click","#cog"+row.investorNo,row,function(event){
+            config(row);
         });
         
       //添加删除事件
@@ -121,24 +124,6 @@
             trash(row);
         });
         return html;
-    }
-    
-    function deploy(modelId){
-    	
-        $.ajax({
-            url: '<%=path%>/workflow/model/deploy/'+modelId,
-            type: 'post',
-            dataType: 'json',
-            success: function (data) {
-                $('<div class="alert alert-success" style="height: auto;width: 30%;margin: auto;" >'
-                        +'<button type="button" class="close" data-dismiss="alert" aria-label="Close">'
-                          +'<span aria-hidden="true">&times;</span>'
-                        +'</button>'
-                        +'<strong>警告！</strong>您的网络连接有问题。'
-                    +'</div>').alert();
-            }
-     })
-    	
     }
 </script>
 </head>
@@ -153,16 +138,10 @@
             <%@include file="leftMenu.jsp"%>
 
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                <h1 class="page-header">流程模型设计</h1>
+                <h1 class="page-header">流程监控</h1>
 
                 <div class="table-responsive">
-                    <div id="toolbar" class="btn-group">
-                        <button type="button" class="btn btn-default" data-toggle="modal"
-                            data-target="#addModal" title="创建模型">
-                            <i class="glyphicon glyphicon-plus"></i>
-                        </button>
-                    </div>
-                    <table id="modelTable"</table>
+                    <table id="processInstanceTable"</table>
 
                 </div>
             </div>
@@ -214,8 +193,6 @@
             </div>
         </div>
     </div>
-    
-    
 
 </body>
 </html>

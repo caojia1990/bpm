@@ -36,37 +36,29 @@
                     $(function() {
 
                         $('#processTable').bootstrapTable({
+                            
                             columns : [ {
                                 field : 'id',
                                 title : 'ID'
                             }, {
+                                field : 'key',
+                                title : 'KEY'
+                            }, {
                                 field : 'name',
-                                title : '名称'
+                                title : '流程定义名称'
                             }, {
                                 field : 'category',
                                 title : '分类'
                             }, {
-                                field : 'key',
-                                title : '键'
-                            }, {
                                 field : 'version',
-                                title : '版本'
+                                title : '版本号'
                             }, {
                                 field : 'description',
                                 title : '描述'
-                            }, {
-                                field : 'url',
-                                title : '流程url',
-                                formatter : function(value,row,index){
-                                       return '<a href="'+value+'"><i class="glyphicon glyphicon-eye-open"/></a>';
-                                    }
-                            }, {
+                            },{
                                 field : 'deploymentId',
                                 title : '部署ID'
-                            }/* , {
-                                field : 'deploymentUrl',
-                                title : '部署rul'
-                            } */, {
+                            }, {
                                 field : 'resource',
                                 title : '流程文件',
                                 formatter : function(value,row,index){
@@ -74,10 +66,16 @@
                                  }
                             }, {
                                 field : 'diagramResource',
-                                title : '流程图片',
+                                title : '流程图',
                                 formatter : function(value,row,index){
-                                    return '<a href="'+value+'" download=""><i class="glyphicon glyphicon-picture"/></a>';
-                                 }
+                                       return '<a href="'+value+'"><i class="glyphicon glyphicon-picture"/></a>';
+                                    }
+                            }, {
+                                field : 'deploymentUrl',
+                                title : '部署url'
+                            }, {
+                                field : 'startFormDefined',
+                                title : '自定义表单'
                             }, {
                                 title : '操作',
                                 formatter : operationFormatter
@@ -103,29 +101,77 @@
     }
     
     function operationFormatter(value,row,index) {
+        
         var html = '<a href="<%=path%>/modeler.html?modelId='+row.id+'"><button type="button" id="cog'+row.investorNo+'" class="btn btn-default btn-sm" title="设置">'
                       + '<i class="glyphicon glyphicon-cog"></i>'
                  + '</button></a> &nbsp;'
                  
-                 +'<button type="button" id="cog'+row.investorNo+'" class="btn btn-default btn-sm" title="部署">'
-                     + '<i class="glyphicon glyphicon-cloud-upload"></i>'
-                 + '</button> &nbsp;'
-                 
-                 + '<button type="button" id="trash'+row.investorNo+'" class="btn btn-default btn-sm" title="删除">'
-                     + '<i class="glyphicon glyphicon-trash"></i>'
+                 + '<button type="button" id="start'+escapse(row.id)+'" class="btn btn-default btn-sm" title="发起流程">'
+                     + '<i class="glyphicon glyphicon-play"></i>'
                  + '</button>';
                  
-        $("#investorTable").off("click","#cog"+row.investorNo);
-        $("#investorTable").on("click","#cog"+row.investorNo,row,function(event){
-            config(row);
-        });
         
-      //添加删除事件
-        $("#investorTable").off("click","#trash"+row.investorNo);
-        $("#investorTable").on("click","#trash"+row.investorNo,row,function(event){
-            trash(row);
-        });
+      //添加发起事件
+        $("#processTable").off("click","#start"+escapse(row.id));
+        $("#processTable").on("click","#start"+escapse(row.id),row,function(event){
+            start(row.id);
+        }); 
         return html;
+    }
+    
+    function escapse(str){
+        var reg = new RegExp(":","g");
+        return str.replace(reg,"0");
+    }
+    
+    function start(processDefId){
+        
+        $.ajax({
+            type : "get",
+            url : "<%=path %>/rest/form/form-data?processDefinitionId="+processDefId,
+            dataType: 'json',
+            contentType : "application/json;charset=UTF-8",
+            success : function(date, status) {
+                
+                var formProperties = date.formProperties;
+                
+                var html = "";
+                $.each(formProperties,function(i,fp){
+                    console.log(i, fp);
+                    if(fp.type == 'long' || fp.type == 'string'){
+                        html += "<div class='form-group'>"
+                                    +"<label for='"+fp.id+"' class='col-sm-3 control-label'>"+fp.name+"</label>"
+                                    +"<div class='col-sm-8'>"
+                                        +"<input type='text' class='form-control' id='"+fp.id+"' name='"+fp.id+"'>"
+                                    +"</div>"
+                                +"</div>";
+                    }else if(fp.type == 'date'){
+                        html += "<div class='form-group'>"
+                                    +"<label for='"+fp.id+"' class='col-sm-3 control-label'>"+fp.name+"</label>"
+                                    +"<div class='col-sm-8'>"
+                                        +"<input type='text' class='form-control datepicker' id='"+fp.id+"' name='"+fp.id+"' data-date-format='"+fp.datePattern+"'>"
+                                    +"</div>"
+                                +"</div>";
+                    }
+                });
+                
+                html += "<div class='form-group'>"
+                            +"<button type='button' class='btn btn-default col-sm-2 col-md-2 col-md-offset-6' data-dismiss='modal'>关闭</button>"
+                            +"<button type='submit' class='btn btn-primary col-sm-2 col-md-2 col-md-offset-1'><i class='icon-play'></i>发起流程</button>"
+                        +"</div>";
+                
+                
+                $("#form").html(html);
+                $('.datepicker').datepicker({
+                    todayBtn: "linked",
+                    clearBtn: true,
+                    language: "zh-CN",
+                    autoclose: true,
+                    todayHighlight: true
+                });
+                $("#startModal").modal('show');
+            }
+        });
     }
 </script>
 </head>
@@ -153,8 +199,8 @@
     </div>
 
 
-    <!-- 创建新模型 -->
-    <div class="modal fade" id="addModal" tabindex="-1" role="dialog"
+    
+    <div class="modal fade" id="startModal" tabindex="-1" role="dialog"
         aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -162,36 +208,19 @@
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                     </button>
-                    <h4 class="modal-title" id="myModalLabel">创建模型</h4>
+                    <h4 class="modal-title" id="myModalLabel">发起流程</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="addForm" class="form-horizontal" role="form"
-                        action="<%=path%>/workflow/model/create" method="post">
+                    <form id="form" class="form-horizontal" role="form">
 
-                        <div class="form-group">
 
-                            <label for="name" class="col-sm-3 col-md-3 control-label">模型名称</label>
-                            <div class="col-sm-8 col-md-8">
-                                <input type="text" class="form-control" id="name" name="name"
-                                    placeholder="" />
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description" class="col-sm-3 col-md-3 control-label">描述</label>
-                            <div class="col-sm-8 col-md-8">
-                                <textarea class="form-control" rows="3" id="description"
-                                    name="description" placeholder=""></textarea>
-                            </div>
-
-                        </div>
-
+                        
                     </form>
                 </div>
-                <div class="modal-footer">
+                <!-- <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                     <button type="button" class="btn btn-primary" onclick="create()">创建</button>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

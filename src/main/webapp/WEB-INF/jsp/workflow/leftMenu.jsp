@@ -4,7 +4,7 @@
     <ul class="nav nav-sidebar">
       <li class="active"><a href="<%=path %>/workflow/model">模型<span class="sr-only">(current)</span></a></li>
       <li ><a href="<%=path %>/workflow/process">已部署流程</a></li>
-      <li><a href="#">Analytics</a></li>
+      <li><a href="<%=path %>/workflow/runtime">流程监控</a></li>
       <li><a href="#">Export</a></li>
     </ul>
     <ul class="nav nav-sidebar">
