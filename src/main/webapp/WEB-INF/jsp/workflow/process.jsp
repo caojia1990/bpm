@@ -155,13 +155,18 @@
                     }
                 });
                 
-                html += "<div class='form-group'>"
-                            +"<button type='button' class='btn btn-default col-sm-2 col-md-2 col-md-offset-6' data-dismiss='modal'>关闭</button>"
-                            +"<button type='submit' class='btn btn-primary col-sm-2 col-md-2 col-md-offset-1'><i class='icon-play'></i>发起流程</button>"
-                        +"</div>";
-                
+                html += '<div class="form-group">'
+                            +'<button type="button" class="btn btn-default col-sm-2 col-md-2 col-md-offset-6 col-sm-offset-3" data-dismiss="modal">关闭</button>'
+                            +'<button type="button" id="startBtn" class="btn btn-primary col-sm-2 col-md-2 col-md-offset-1"><i class="icon-play"></i>发起流程</button>'
+                        +'</div>';
+                        
                 
                 $("#form").html(html);
+                
+                $("#startBtn").click(function(){
+                    start(processDefId);
+                });
+                
                 $('.datepicker').datepicker({
                     todayBtn: "linked",
                     clearBtn: true,
@@ -176,13 +181,20 @@
     
     /* Start a process instance */
     function start(processDefId){
+    	
+    	var requestBody = {};
+        requestBody["processDefinitionId"] = processDefId;
+        
+        requestBody["variables"] = $("#form input").serializeArray(); 
         
         $.ajax({
-            type : "get",
-            url : "<%=path %>/rest/form/form-data?processDefinitionId="+processDefId,
+            type : "post",
+            url : "<%=path %>/rest/runtime/process-instances",
             dataType: 'json',
+            data:JSON.stringify(requestBody),
             contentType : "application/json;charset=UTF-8",
             success : function(date, status) {
+                
                 
                 $("#startModal").modal('hide');
             }
@@ -226,7 +238,7 @@
                     <h4 class="modal-title" id="myModalLabel">发起流程</h4>
                 </div>
                 <div class="modal-body">
-                    <form id="form" class="form-horizontal" role="form">
+                    <form id="form" class="form-horizontal" role="form" >
 
 
                         

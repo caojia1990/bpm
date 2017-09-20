@@ -35,6 +35,11 @@ public class WorkflowController {
         return "workflow/model";
     }
     
+    @RequestMapping(value = "workflow/deploy")
+    public String toWorkflowdeploy() {
+        return "workflow/deploy";
+    }
+    
     @RequestMapping(value = "workflow/process")
     public String toWorkflowProcess() {
         return "workflow/process";
