@@ -114,7 +114,7 @@
       //添加发起事件
         $("#processTable").off("click","#start"+escapse(row.id));
         $("#processTable").on("click","#start"+escapse(row.id),row,function(event){
-            start(row.id);
+            startModal(row.id);
         }); 
         return html;
     }
@@ -124,7 +124,7 @@
         return str.replace(reg,"0");
     }
     
-    function start(processDefId){
+    function startModal(processDefId){
         
         $.ajax({
             type : "get",
@@ -170,6 +170,21 @@
                     todayHighlight: true
                 });
                 $("#startModal").modal('show');
+            }
+        });
+    }
+    
+    /* Start a process instance */
+    function start(processDefId){
+        
+        $.ajax({
+            type : "get",
+            url : "<%=path %>/rest/form/form-data?processDefinitionId="+processDefId,
+            dataType: 'json',
+            contentType : "application/json;charset=UTF-8",
+            success : function(date, status) {
+                
+                $("#startModal").modal('hide');
             }
         });
     }
