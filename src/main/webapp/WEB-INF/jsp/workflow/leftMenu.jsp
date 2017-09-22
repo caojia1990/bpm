@@ -6,7 +6,7 @@
       <li ><a href="<%=path %>/workflow/deploy">部署信息</a></li>
       <li ><a href="<%=path %>/workflow/process">已部署流程</a></li>
       <li><a href="<%=path %>/workflow/runtime">流程监控</a></li>
-      <li><a href="#">Export</a></li>
+      <li><a href="<%=path %>/workflow/task">任务管理</a></li>
     </ul>
     <ul class="nav nav-sidebar">
       <li><a href="">Nav item</a></li>

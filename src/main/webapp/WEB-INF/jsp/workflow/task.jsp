@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>流程列表</title>
+<title>任务管理</title>
 <%
     String path = request.getContextPath();
 %>
@@ -35,23 +35,23 @@
 <script type="text/javascript">
                     $(function() {
 
-                        $('#processInstanceTable').bootstrapTable({
+                        $('#taskTable').bootstrapTable({
                             
                             columns : [ {
                                 field : 'id',
                                 title : 'ID'
                             }, {
-                                field : 'businessKey',
-                                title : 'businessKey'
-                            }, {
-                                field : 'activityId',
-                                title : '流程节点ID'
-                            }, {
                                 field : 'name',
-                                title : '流程节点名称'
+                                title : '任务名称'
                             }, {
-                                field : 'processDefinitionId',
-                                title : '流程定义ID'
+                                field : 'assignee',
+                                title : '待办人'
+                            }, {
+                                field : 'createTime',
+                                title : '发起时间'
+                            }, {
+                                field : 'description',
+                                title : '描述'
                             }, {
                                 field : 'processDefinitionKey',
                                 title : '流程定义Key'
@@ -74,7 +74,7 @@
                                 title : '操作',
                                 formatter : operationFormatter
                             } ],
-                            url : '<%=path%>/rest/runtime/process-instances',
+                            url : '<%=path%>/rest/runtime/tasks',
             dataField : 'data',
             queryParams : function(params) {
                 return {
@@ -95,30 +95,101 @@
     }
     
     function operationFormatter(value,row,index) {
-        var html = '<a href="<%=path%>/modeler.html?modelId='+row.id+'"><button type="button" id="cog'+row.investorNo+'" class="btn btn-default btn-sm" title="设置">'
-                      + '<i class="glyphicon glyphicon-cog"></i>'
-                 + '</button></a> &nbsp;'
-                 
-                 +'<button type="button" id="cog'+row.investorNo+'" class="btn btn-default btn-sm" title="部署">'
-                     + '<i class="glyphicon glyphicon-cloud-upload"></i>'
+        var html = '<button type="button" id="work'+row.id+'" class="btn btn-default btn-sm" title="办理">'
+                     + '<i class="glyphicon glyphicon-tasks"></i>'
                  + '</button> &nbsp;'
                  
                  + '<button type="button" id="trash'+row.investorNo+'" class="btn btn-default btn-sm" title="删除">'
                      + '<i class="glyphicon glyphicon-trash"></i>'
                  + '</button>';
                  
-        $("#investorTable").off("click","#cog"+row.investorNo);
-        $("#investorTable").on("click","#cog"+row.investorNo,row,function(event){
-            config(row);
+        $("#taskTable").off("click","#work"+row.id);
+        $("#taskTable").on("click","#work"+row.id,row,function(event){
+            claimTask(row.id);
         });
         
       //添加删除事件
-        $("#investorTable").off("click","#trash"+row.investorNo);
-        $("#investorTable").on("click","#trash"+row.investorNo,row,function(event){
+        $("#taskTable").off("click","#trash"+row.investorNo);
+        $("#taskTable").on("click","#trash"+row.investorNo,row,function(event){
             trash(row);
         });
         return html;
     }
+    
+    function claimTask(taskId){
+        
+        var param = {
+                "action" : "claim",
+                "assignee" : "userWhoClaims"
+              };
+        //签收任务
+        $.ajax({
+            type : 'post',
+            url : '<%=path %>/rest/runtime/tasks/'+taskId,
+            dataType: 'text',
+            data : JSON.stringify(param),
+            contentType : "application/json;charset=UTF-8",
+            success : function(date, status) {
+                
+                //签收成功后打开表单
+                $.ajax({
+                    type : "get",
+                    url : "<%=path %>/rest/form/form-data?taskId="+taskId,
+                    dataType: 'json',
+                    contentType : "application/json;charset=UTF-8",
+                    success : function(date, status) {
+                        
+                        var formProperties = date.formProperties;
+                        
+                        var html = "";
+                        $.each(formProperties,function(i,fp){
+                            console.log(i, fp);
+                            if(fp.type == 'long' || fp.type == 'string'){
+                                html += "<div class='form-group'>"
+                                            +"<label for='"+fp.id+"' class='col-sm-3 control-label'>"+fp.name+"</label>"
+                                            +"<div class='col-sm-8'>"
+                                                +"<input type='text' class='form-control' id='"+fp.id+"' name='"+fp.id+"'>"
+                                            +"</div>"
+                                        +"</div>";
+                            }else if(fp.type == 'date'){
+                                html += "<div class='form-group'>"
+                                            +"<label for='"+fp.id+"' class='col-sm-3 control-label'>"+fp.name+"</label>"
+                                            +"<div class='col-sm-8'>"
+                                                +"<input type='text' class='form-control datepicker' id='"+fp.id+"' name='"+fp.id+"' data-date-format='"+fp.datePattern+"'>"
+                                            +"</div>"
+                                        +"</div>";
+                            }
+                        });
+                        
+                        html += '<div class="form-group">'
+                                    +'<button type="button" class="btn btn-default col-sm-2 col-md-2 col-md-offset-6 col-sm-offset-3" data-dismiss="modal">关闭</button>'
+                                    +'<button type="button" id="taskBtn" class="btn btn-primary col-sm-2 col-md-2 col-md-offset-1"><i class="icon-play"></i>办理</button>'
+                                +'</div>';
+                                
+                        
+                        $("#form").html(html);
+                        
+                        $("#taskBtn").click(function(){
+                            task(processDefId);
+                        });
+                        
+                        $('.datepicker').datepicker({
+                            todayBtn: "linked",
+                            clearBtn: true,
+                            language: "zh-CN",
+                            autoclose: true,
+                            todayHighlight: true
+                        });
+                        $("#taskModal").modal('show');
+                    }
+                });
+                
+            }
+        })
+        
+        
+    }
+    
 </script>
 </head>
 <body>
@@ -132,10 +203,10 @@
             <%@include file="leftMenu.jsp"%>
 
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                <h1 class="page-header">流程监控</h1>
+                <h1 class="page-header">任务管理</h1>
 
                 <div class="table-responsive">
-                    <table id="processInstanceTable"</table>
+                    <table id="taskTable"</table>
 
                 </div>
             </div>
@@ -145,8 +216,7 @@
     </div>
 
 
-    <!-- 创建新模型 -->
-    <div class="modal fade" id="addModal" tabindex="-1" role="dialog"
+    <div class="modal fade" id="taskModal" tabindex="-1" role="dialog"
         aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -154,36 +224,19 @@
                     <button type="button" class="close" data-dismiss="modal">
                         <span aria-hidden="true">&times;</span><span class="sr-only">Close</span>
                     </button>
-                    <h4 class="modal-title" id="myModalLabel">创建模型</h4>
+                    <h4 class="modal-title" id="taskLabel"></h4>
                 </div>
                 <div class="modal-body">
-                    <form id="addForm" class="form-horizontal" role="form"
-                        action="<%=path%>/workflow/model/create" method="post">
+                    <form id="form" class="form-horizontal" role="form" >
 
-                        <div class="form-group">
 
-                            <label for="name" class="col-sm-3 col-md-3 control-label">模型名称</label>
-                            <div class="col-sm-8 col-md-8">
-                                <input type="text" class="form-control" id="name" name="name"
-                                    placeholder="" />
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="description" class="col-sm-3 col-md-3 control-label">描述</label>
-                            <div class="col-sm-8 col-md-8">
-                                <textarea class="form-control" rows="3" id="description"
-                                    name="description" placeholder=""></textarea>
-                            </div>
-
-                        </div>
-
+                        
                     </form>
                 </div>
-                <div class="modal-footer">
+                <!-- <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
                     <button type="button" class="btn btn-primary" onclick="create()">创建</button>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

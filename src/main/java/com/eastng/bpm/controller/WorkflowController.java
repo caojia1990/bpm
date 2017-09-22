@@ -49,4 +49,9 @@ public class WorkflowController {
     public String toWorkflowProcessInstance() {
         return "workflow/runtime";
     }
+    
+    @RequestMapping(value = "workflow/task")
+    public String toWorkflowTask() {
+        return "workflow/task";
+    }
 }

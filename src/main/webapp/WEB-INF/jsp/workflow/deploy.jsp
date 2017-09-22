@@ -79,7 +79,7 @@
     function operationFormatter(value,row,index) {
         
         var html = '<button type="button" id="undeploy'+row.id+'" class="btn btn-default btn-sm" title="反部署">'
-                     + '<i class="glyphicon glyphicon-trash"></i>'
+                     + '<i class="glyphicon glyphicon-cloud-download"></i>'
                  + '</button>';
                  
         
