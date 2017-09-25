@@ -145,19 +145,19 @@
                         $.each(formProperties,function(i,fp){
                             console.log(i, fp);
                             if(fp.type == 'long' || fp.type == 'string'){
-                                html += "<div class='form-group'>"
-                                            +"<label for='"+fp.id+"' class='col-sm-3 control-label'>"+fp.name+"</label>"
-                                            +"<div class='col-sm-8'>"
-                                                +"<input type='text' class='form-control' id='"+fp.id+"' name='"+fp.id+"'>"
-                                            +"</div>"
-                                        +"</div>";
+                                html += '<div class="form-group">'
+                                            +'<label for="'+fp.id+'" class="col-sm-3 control-label">'+fp.name+'</label>'
+                                            +'<div class="col-sm-5">'
+                                                +'<input type="text" class="form-control" id="'+fp.id+'" name="'+fp.id+'" value="'+fp.value+'">'
+                                            +'</div>'
+                                        +'</div>';
                             }else if(fp.type == 'date'){
-                                html += "<div class='form-group'>"
-                                            +"<label for='"+fp.id+"' class='col-sm-3 control-label'>"+fp.name+"</label>"
-                                            +"<div class='col-sm-8'>"
-                                                +"<input type='text' class='form-control datepicker' id='"+fp.id+"' name='"+fp.id+"' data-date-format='"+fp.datePattern+"'>"
-                                            +"</div>"
-                                        +"</div>";
+                                html += '<div class="form-group">'
+                                            +'<label for="'+fp.id+'" class="col-sm-3 control-label">'+fp.name+'</label>'
+                                            +'<div class="col-sm-5">'
+                                                +'<input type="text" class="form-control datepicker" id="'+fp.id+'" name="'+fp.id+'" value="'+fp.value+'" data-date-format="'+fp.datePattern+'">'
+                                            +'</div>'
+                                        +'</div>';
                             }
                         });
                         
@@ -170,7 +170,7 @@
                         $("#form").html(html);
                         
                         $("#taskBtn").click(function(){
-                            task(processDefId);
+                            task(taskId);
                         });
                         
                         $('.datepicker').datepicker({
@@ -181,14 +181,31 @@
                             todayHighlight: true
                         });
                         $("#taskModal").modal('show');
-                    }
+                    }//查询任务表单回调函数
                 });
-                
-            }
-        })
-        
-        
+            }//签收回调函数
+        });
     }
+    
+    function task(taskId){
+        
+        var requestBody = {};
+        requestBody["action"] = "complete";
+        
+        requestBody["variables"] = $("#form input").serializeArray(); 
+        
+        $.ajax({
+                type : 'post',
+                url : '<%=path %>/rest/runtime/tasks/'+taskId,
+                dataType: 'text',
+                data : JSON.stringify(requestBody),
+                contentType : "application/json;charset=UTF-8",
+                success : function(date, status) {
+                    alert(status);
+                }
+        });
+    }
+        
     
 </script>
 </head>
