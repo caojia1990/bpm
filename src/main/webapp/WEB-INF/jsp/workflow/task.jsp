@@ -4,7 +4,7 @@
 <html lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>任务管理</title>
+<title>待办任务</title>
 <%
     String path = request.getContextPath();
 %>
@@ -220,7 +220,7 @@
             <%@include file="leftMenu.jsp"%>
 
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-                <h1 class="page-header">任务管理</h1>
+                <h1 class="page-header">待办任务</h1>
 
                 <div class="table-responsive">
                     <table id="taskTable"</table>

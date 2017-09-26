@@ -54,4 +54,14 @@ public class WorkflowController {
     public String toWorkflowTask() {
         return "workflow/task";
     }
+    
+    @RequestMapping(value = "workflow/history")
+    public String toWorkflowHistory() {
+        return "workflow/history";
+    }
+    
+    @RequestMapping(value = "workflow/done")
+    public String toWorkflowDone() {
+        return "workflow/done";
+    }
 }
